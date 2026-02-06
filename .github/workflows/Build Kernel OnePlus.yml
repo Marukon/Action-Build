@@ -59,12 +59,10 @@ on:
         type: choice
         description: "管理器调用方向"
         required: true
-        default: OFFICIAL
+        default: MD3
         options:
-          - OFFICIAL
-          - SPOOF
-          - NEW
-          - NEW-SPOOF
+          - MD3
+          - MD3_SPOOF
       SUSFS_CI:
         type: choice
         description: "SUSFS模块下载调用方向"
@@ -579,19 +577,11 @@ jobs:
           MANAGER_SOURCE="${{ github.event.inputs.MANAGER_SOURCE }}"
 
           case "$MANAGER_SOURCE" in
-            NEW-SPOOF)
-              BRANCH="new-manager"
-              ARTIFACT="Spoofed-Manager-release"
-              ;;
-            NEW)
-              BRANCH="new-manager"
-              ARTIFACT="Manager-release"
-              ;;
-            SPOOF)
+            MD3_SPOOF)
               BRANCH="main"
               ARTIFACT="Spoofed-Manager-release"
               ;;
-            OFFICIAL|*)
+            MD3|*)
               BRANCH="main"
               ARTIFACT="Manager-release"
               ;;
