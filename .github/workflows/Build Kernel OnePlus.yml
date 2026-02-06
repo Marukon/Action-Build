@@ -577,11 +577,19 @@ jobs:
           MANAGER_SOURCE="${{ github.event.inputs.MANAGER_SOURCE }}"
 
           case "$MANAGER_SOURCE" in
-            MD3_SPOOF)
+            NEW-SPOOF)
+              BRANCH="new-manager"
+              ARTIFACT="Spoofed-Manager-release"
+              ;;
+            NEW)
+              BRANCH="new-manager"
+              ARTIFACT="Manager-release"
+              ;;
+            SPOOF)
               BRANCH="main"
               ARTIFACT="Spoofed-Manager-release"
               ;;
-            MD3|*)
+            OFFICIAL|*)
               BRANCH="main"
               ARTIFACT="Manager-release"
               ;;
@@ -657,7 +665,7 @@ jobs:
           )
 
           awk -v def="$VERSION_DEFINITIONS" '
-            /REPO_OWNER :=/ {print; print def; inserted=1; next}
+            /REPO_NAME :=/ {print; print def; inserted=1; next}
             1
             END {if (!inserted) print def}
           ' kernel/Kbuild > kernel/Kbuild.tmp && mv kernel/Kbuild.tmp kernel/Kbuild
@@ -666,7 +674,7 @@ jobs:
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
 
           echo "::group::最终 Kbuild 中版本信息及部分调试结果预览"
-          grep -A10 "REPO_OWNER" kernel/Kbuild
+          grep -A10 "REPO_NAME" kernel/Kbuild
           grep "KSU_VERSION_FULL" kernel/Kbuild
           echo "::endgroup::"
 
