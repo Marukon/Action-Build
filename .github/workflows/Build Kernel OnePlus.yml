@@ -1034,15 +1034,20 @@ jobs:
             RUSTC_VERSION=$(grep '^RUSTC_VERSION=' ./common/build.config.constants | cut -d'=' -f2 || true)
           fi
           if [[ -n "$RUSTC_VERSION" ]]; then
-            echo "✅ Found RUSTC_VERSION=$RUSTC_VERSION"
+            echo "✅ RUSTC_VERSION=$RUSTC_VERSION"
             echo "RUSTC_VERSION=$RUSTC_VERSION" >> $GITHUB_ENV
             ENABLE_RUST=true
             echo "ENABLE_RUST=true" >> $GITHUB_ENV
           else
-            echo "ℹ️ No RUSTC_VERSION found, skip Rust toolchain setup"
+            echo "✅ RUSTC_VERSION 未找到，Rust 编译已禁用"
             ENABLE_RUST=false
             echo "ENABLE_RUST=false" >> $GITHUB_ENV
           fi
+
+          # 重映射物理路径
+          MAP="-fdebug-prefix-map=${GITHUB_WORKSPACE}=."
+          MPMAP="-fmacro-prefix-map=${GITHUB_WORKSPACE}=."
+          FPMAP="-ffile-prefix-map=${GITHUB_WORKSPACE}=."
 
           echo "-----------------------"
           echo "✅ CLANG_VERSION=$CLANG_VERSION"
@@ -1050,6 +1055,10 @@ jobs:
           echo "✅ CLANG_PATH=$CLANG_PATH"
           echo "✅ USE_LLVM_IAS=$USE_LLVM_IAS"
           echo "-----------------------"
+
+          set +u
+          source "$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/build/kernel/_setup_env.sh" 2>/dev/null || true
+          set -u
 
           export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/$CLANG_PREBUILT_BIN:$PATH"
           export PATH="/usr/lib/ccache:$PATH"
@@ -1059,10 +1068,6 @@ jobs:
             export LIBCLANG_PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/$(dirname "$CLANG_PREBUILT_BIN")/lib"
           fi
 
-          set +u
-          source "$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/build/kernel/_setup_env.sh" 2>/dev/null || true
-          set -u
-
           cd ./common
           MAKE_ARGS=(
             LLVM=1
@@ -1071,6 +1076,7 @@ jobs:
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole
             LD=ld.lld
             HOSTLD=ld.lld
+            KCFLAGS+="$MAP $MPMAP $FPMAP"
             KCFLAGS+=-Wno-error
             KCFLAGS+=-D__ANDROID_COMMON_KERNEL__
           )
