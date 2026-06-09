@@ -98,7 +98,7 @@ on:
         type: string
         description: "回退SUSFS(输入哈希或次数或-1关闭)"
         required: false
-        default: "-1"
+        default: "0"
       DYNAMIC_REPO:
         type: string
         description: "动态清单仓库所有者"
