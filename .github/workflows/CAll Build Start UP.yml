@@ -4,7 +4,6 @@ name: CAll Build Start UP
 
 
 permissions:
-  actions: read
   contents: read
 
 jobs:
